@@ -1,1 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  scrollbar-color: #332C55 transparent;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: #100E1F;
+  color: #F7F5FF;
+  font-feature-settings: "ss01" on, "ss02" on;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid #FFD23F;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+
+.perspective {
+  perspective: 1600px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* thin custom scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #332C55;
+  border-radius: 999px;
+}
 
