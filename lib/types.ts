@@ -7,6 +7,7 @@ export interface MCQCard {
   options: string[];
   correctIndex: number;
   explanation: string;
+  category?: string;
 }
 
 export interface SAQCard {
@@ -14,6 +15,7 @@ export interface SAQCard {
   type: "SAQ";
   question: string;
   answer: string;
+  category?: string;
 }
 
 export interface TheoryCard {
@@ -21,6 +23,7 @@ export interface TheoryCard {
   type: "THEORY";
   question: string;
   answer: string;
+  category?: string;
 }
 
 export type Flashcard = MCQCard | SAQCard | TheoryCard;
@@ -33,4 +36,3 @@ export interface DeckMeta {
   studentName: string;
   createdAt: number;
 }
-
