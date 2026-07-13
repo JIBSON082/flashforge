@@ -27,9 +27,16 @@ export default function CardMCQ({
     <div className="w-full flex flex-col items-center gap-6">
       <div className="w-full max-w-xl rounded-3xl bg-surface border border-line shadow-card p-8 flex flex-col gap-6">
         <div>
-          <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-mint">
-            Multiple Choice
-          </span>
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-mint">
+              Multiple Choice
+            </span>
+            {card.category && (
+              <span className="font-mono text-[10px] tracking-wide text-text-faint border border-line rounded-full px-2.5 py-1">
+                {card.category}
+              </span>
+            )}
+          </div>
           <p className="text-xl sm:text-2xl font-display font-medium leading-snug mt-3">
             {card.question}
           </p>
@@ -89,4 +96,3 @@ export default function CardMCQ({
     </div>
   );
 }
-
