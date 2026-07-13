@@ -32,9 +32,16 @@ export default function CardOpen({
         >
           {/* front */}
           <div className="absolute inset-0 backface-hidden rounded-3xl bg-surface border border-line shadow-card p-8 flex flex-col">
-            <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-violet-soft">
-              {isTheory ? "Theory" : "Short Answer"} · Question
-            </span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-violet-soft">
+                {isTheory ? "Theory" : "Short Answer"} · Question
+              </span>
+              {card.category && (
+                <span className="font-mono text-[10px] tracking-wide text-text-faint border border-line rounded-full px-2.5 py-1 shrink-0">
+                  {card.category}
+                </span>
+              )}
+            </div>
             <div className="flex-1 flex items-center justify-center text-center px-2">
               <p className="text-xl sm:text-2xl font-display font-medium leading-snug">
                 {card.question}
@@ -78,4 +85,3 @@ export default function CardOpen({
     </div>
   );
 }
-
