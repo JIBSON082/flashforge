@@ -3,7 +3,9 @@ import { generateDeck } from "@/lib/groq";
 import { ExamMode } from "@/lib/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// Some Vercel Hobby configurations hard-reject maxDuration above 60 at deploy time,
+// so this is set to the safest broadly-supported value rather than the theoretical max.
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,10 +35,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ cards });
   } catch (err: any) {
     console.error("Generate error:", err);
-    const message =
-      err?.message?.includes("GROQ_API_KEY")
-        ? err.message
-        : "Something went wrong generating your deck. Try again.";
+    // generateDeck already crafts a specific, actionable message when every attempt
+    // fails (bad key, rate limit, retired model, etc.) — surface it as-is.
+    const message = err instanceof Error && err.message ? err.message : "Something went wrong generating your deck. Try again.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
