@@ -14,7 +14,6 @@ export default function GeneratingLoader({
     `Reading through your slides, ${name}…`,
     "Spotting every definition and key point…",
     `Writing ${mode} questions that don't skip anything…`,
-    "Double-checking nothing got left out…",
     "Almost ready…",
   ];
   const [i, setI] = useState(0);
@@ -24,7 +23,8 @@ export default function GeneratingLoader({
       setI((prev) => Math.min(prev + 1, messages.length - 1));
     }, 2200);
     return () => clearInterval(id);
-  }, [messages.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <StepShell>
@@ -63,4 +63,3 @@ export default function GeneratingLoader({
     </StepShell>
   );
 }
-
