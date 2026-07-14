@@ -1,4 +1,4 @@
-import Groq from "groq-sdk";
+import Groq, { APIError } from "groq-sdk";
 import { v4 as uuid } from "uuid";
 import { ExamMode, Flashcard } from "./types";
 
@@ -211,6 +211,26 @@ function toFlashcard(item: any, mode: ExamMode): Flashcard {
   } as Flashcard;
 }
 
+function describeError(err: unknown): string {
+  if (err instanceof Error && err.message.includes("GROQ_API_KEY")) {
+    return err.message;
+  }
+  if (err instanceof APIError) {
+    if (err.status === 401) {
+      return "Groq rejected the API key (401 Unauthorized). Check that GROQ_API_KEY is set correctly in your deployment's environment variables, then redeploy — env var changes don't apply until you redeploy.";
+    }
+    if (err.status === 429) {
+      return "Groq's rate limit was hit (429 Too Many Requests). Wait a minute and try again — the free tier allows about 30 requests/minute.";
+    }
+    if (err.status === 404) {
+      return "Groq couldn't find the requested model (404) — it may have been renamed or retired. Check console.groq.com/docs/models for the current model name.";
+    }
+    return `Groq API error (${err.status ?? "unknown"}): ${err.message}`;
+  }
+  if (err instanceof Error) return err.message;
+  return "Something went wrong generating your deck. Try again.";
+}
+
 async function generateCardsForChunk(
   chunk: string,
   mode: ExamMode,
@@ -265,6 +285,7 @@ export async function generateDeck(
 ): Promise<Flashcard[]> {
   const chunks = chunkText(fullText);
   const results: Flashcard[] = [];
+  let lastError: unknown = null;
 
   // Sequential to stay well within free-tier rate limits (30 requests/min on Groq).
   for (const chunk of chunks) {
@@ -273,7 +294,9 @@ export async function generateDeck(
       const cards = await generateCardsForChunk(chunk, mode, studentName);
       results.push(...cards);
     } catch (err) {
-      // Skip a failed chunk rather than failing the whole deck.
+      // Skip a failed chunk rather than failing the whole deck immediately —
+      // but remember the error in case every attempt fails and we need to explain why.
+      lastError = err;
       console.error("Chunk generation failed:", err);
     }
   }
@@ -285,8 +308,15 @@ export async function generateDeck(
       const synthesisCards = await generateSynthesisCards(chunks, mode, studentName);
       results.push(...synthesisCards);
     } catch (err) {
+      lastError = err;
       console.error("Synthesis pass failed:", err);
     }
+  }
+
+  // If literally every call failed, surface the real reason instead of a generic
+  // "couldn't generate cards" message the person can't act on.
+  if (results.length === 0 && lastError) {
+    throw new Error(describeError(lastError));
   }
 
   return results;
