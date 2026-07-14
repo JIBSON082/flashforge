@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateDeck } from "@/lib/groq";
+import { generateDeck, describeError } from "@/lib/gemini";
 import { ExamMode } from "@/lib/types";
 
 export const runtime = "nodejs";
-// Some Vercel Hobby configurations hard-reject maxDuration above 60 at deploy time,
-// so this is set to the safest broadly-supported value rather than the theoretical max.
+// Almost always a single Gemini call now; the rare large-document fallback
+// runs a handful of calls in parallel rather than sequentially, so this still
+// comfortably finishes well inside any Vercel plan's timeout.
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
@@ -33,12 +34,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ cards });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Generate error:", err);
-    // generateDeck already crafts a specific, actionable message when every attempt
-    // fails (bad key, rate limit, retired model, etc.) — surface it as-is.
-    const message = err instanceof Error && err.message ? err.message : "Something went wrong generating your deck. Try again.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: describeError(err) }, { status: 500 });
   }
 }
-
